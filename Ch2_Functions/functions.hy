@@ -1,3 +1,4 @@
+; ======= Notes in Hy language on Paul Graham's On Lisp, Chapter 2: Functions =======
 
 ; Creates a function
 (defn double [x]
@@ -6,22 +7,22 @@
 ; Calls the function
 (print (double 2.3))
 
-; Prints the function address
+; Prints the function's memory address
 (print double)
 
 ; As in Python, we can access a function by its name from globals
 (print (get (globals) "double"))
 
-; Lambda expression
-((fn [x] (* x 2)) 5)
+; Lambda expression is defined with the 'fn' keyword
+(fn [x] (* x 2))
+
+; Prints the lambda expression's address
+(print (fn [x] (* x 2)))
 
 ; As lambda expression is an anonymous function, it can also appear in a function call
 (print ((fn [x] (* x 2)) 5))
 
-; Prints the lambda expression address
-(print (fn [x] (* x 2)))
-
-; In Hy, one cannot overload function and argument names
+; In Hy, in contrast to Common Lisp, one cannot overload function and argument names
 ; (setv double 2)
 ; (double double)   <- this doesn't work in Hy
 
@@ -32,10 +33,11 @@
 ; Let us check if the two functions are technically the same
 (print (= double double-fn))
 
-; Let us check if the two functions are the same in terms of their address
+; Same with the function in globals
 (print (= double-fn (get (globals) "double")))
 
-; We can also assign a lambda expression to a variable, which is equal to a function
+; We can also assign a lambda expression to a variable
+; ... which is equal to a function definition
 (setv double-lambda (fn [x] (* x 2)))
 (print (double-lambda 100))
 
@@ -44,7 +46,22 @@
 (print (+ 1 2))
 
 ; (apply #'+ '(1 2))  <- this doesn't work in Hy
-; In Hy, we can use Python's unpacking operator *
-; So, while Hy doesn't have apply, we can use #* to unpack a list into arguments
+; But we can use Hy's #* unpacking operator to apply a list to a function
 (print (+ #* [1 2]))
+
+; The unpacking operator #* can also be used in lambda expressions
+(print((fn [x] (+ #* x)) [1 2 3]))
+
+; This function repeats a list n times
+; returns [1, 2, 3, 1, 2, 3, 1, 2, 3]
+(print(* 3 [1 2 3]))
+
+; This function multiplies each element of a list with n
+; note that (map <function> <list>) only returns a map object,
+; so we need to convert it to a list
+; returns [4, 8, 12]  
+(defn multiply-list [lst n]
+  (list (map (fn [x] (* x n)) lst)))
+
+(print (multiply-list [1 2 3] 4))
 
