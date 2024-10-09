@@ -65,3 +65,71 @@
 
 (print (multiply-list [1 2 3] 4))
 
+; If we want to use a function with map, which takes two arguments,
+; we can use a lambda expression with map
+(defn multiply [x y]
+  (* x y))
+
+(defn multiply-list [lst n]
+  (list (map (fn [x] (multiply x n)) lst)))
+
+(print (multiply-list [1 2 3 4 5] 10))
+
+; Common Lisp's 'mapcar' is equivalent to Hy's 'map'
+; Remember, that (map) returns a map object, so we need to convert it to a list with (list)
+; returns [11, 12, 13]
+(print (list(map (fn [x] (+ x 10)) [1 2 3])))
+
+; ... or with other line breaks
+; returns [11, 12, 13]
+(print (list
+        (map
+          (fn [x] (+ x 10))
+          [1 2 3])))
+
+; Hy can also sort a list, just like Python or Common Lisp
+(print(sorted [1 4 2 5 6 7 3]))
+
+; Hy doesn't have a remove-if function, so we have to define it ourselves
+(defn remove-if [pred lst]
+  (list (filter (fn [x] (not (pred x))) lst))) 
+
+; ... and Hy also doesn't have an evenp function, so we have to define it ourselves, too
+(defn evenp [x]
+  (= (% x 2) 0))
+
+; but finally the usage isn't bad...
+(print(remove-if evenp [1 2 3 4 5 6]))
+
+; it also works on an empty list
+(print(remove-if evenp []))
+
+
+; === 2.4 Functions as properties ===
+
+; Hy has pattern matching the same way as Python
+(defn behave [animal] (match animal
+  "dog" ["bark" "woof"]
+  "cat" "meow"
+  "duck" "quack"
+  "default" "unknown")) 
+
+(print(behave "dog"))
+
+; In the following example, the 'get' function gets a value from a dictionary
+; and the (get animal "behavior") returns the function bark or meow
+; note, that in Hy the dictionary key is a string (and not a symbol as in Common Lisp)
+; Wrapping get in double paranthesis calls the function directly, 
+; similarly to funcall in Common Lisp
+
+(defn behave [animal]
+  ((get animal "behavior")))
+
+(defn bark [] (print "Woof!"))
+(defn meow [] (print "Meow!"))
+
+(setv animal1 {"name" "Dog" "behavior" bark})
+(setv animal2 {"name" "Cat" "behavior" meow})
+
+(behave animal1)
+(behave animal2)
