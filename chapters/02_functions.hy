@@ -164,8 +164,7 @@
 
 (print (list+ [1 2 3] 10))  ; returns [11, 12, 13]
 
-; The following example demonstrates that the closure captures the variable n
-; This is still not working! The closure doesn't capture counter 0.
+; The following example from the book demonstrates that the closure captures the variable n
 ; (let [counter 0]
 ;   (defn new-id []
 ;     (setv counter (+ counter 1))
@@ -176,14 +175,43 @@
 
 ; (print(new_id))
 ; 
-; Instead:
-(setv counter 0)
+; Hy version first without a closure:
+(setv counter [0])
 
 (defn new-id []
-  (setv counter (+ counter 1))
-  counter)
+  (setv (get counter 0) (+ (get counter 0) 1))
+  (get counter 0))
 
 (defn reset-id []
-  (setv counter 0))
+  (setv (get counter 0) 0))
 
-(print (new-id))
+(print (new-id))  ; Call the new-id function
+(print (new-id))  ; Call the new-id function again to see the increment
+(print (new-id))  ; Call the new-id function again to see the increment
+(reset-id)        ; Reset the counter
+(print (new-id))  ; Call new-id after reset to see the counter reset
+
+; This worked, but it is not a closure. Instead, we can use a closure 
+; to achieve the same result. In the code below, the counter is held
+; in a list so that it remains mutable and accessible by both functions,
+; without encountering scope issues. The `(defn create-id-generator [])`
+; function creates a closure where the counter is defined.
+; This way, both `new-id` and `reset-id` share the same `counter` state.
+(defn create-id-generator []
+  (setv counter [0])
+
+  (defn new-id []
+    (setv (get counter 0) (+ (get counter 0) 1))
+    (get counter 0))
+
+  (defn reset-id []
+    (setv (get counter 0) 0))
+
+  [new-id reset-id])
+
+(setv [new-id reset-id] (create-id-generator))
+
+(print (new-id))  ; Call new-id to get the first ID
+(print (new-id))  ; Call new-id again to see the incremented ID
+(reset-id)        ; Reset the counter
+(print (new-id))  ; Call new-id after reset to verify the counter resets
