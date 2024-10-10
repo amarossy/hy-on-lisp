@@ -133,3 +133,57 @@
 
 (behave animal1)
 (behave animal2)
+
+
+; === 2.5 Scope ===
+
+; In Hy, the scoping rules of variables in functions follow lexical scoping.
+; This means that the value of a variable is determined by the environment 
+; in which the function is defined.
+; In this case, the (let) creates a scope and defines a variable y with the value 7.
+; The function scope-test is defined in this scope and uses the variable y.
+; Because of lexical scoping, the function scope-test captures the original value of y.
+(let [y 7]
+  (defn scope-test [x] [x y]))
+
+; Here we create another scope and another y variable in this scope with the value 5.
+; However, the scope-test function still uses the original value of y, which is 7.
+; This is different from Common Lisp (and the book's example), where the function
+; would use the value of y in the scope where it is called due to dynamic scoping.
+; Prints [3 7] instead of [3 5] as in the book.
+(let [y 5]
+  (print(scope-test 3)))
+
+; === 2.6 Closures ===
+
+; The Hy implementation of the book's example list+
+; the anonymous function (fn [x] (+ x n)) is a closure, 
+; as it captures the variable n from the surrounding scope of list+
+(defn list+ [lst n]
+  (list (map (fn [x] (+ x n)) lst))) 
+
+(print (list+ [1 2 3] 10))  ; returns [11, 12, 13]
+
+; The following example demonstrates that the closure captures the variable n
+; This is still not working! The closure doesn't capture counter 0.
+; (let [counter 0]
+;   (defn new-id []
+;     (setv counter (+ counter 1))
+;     counter)
+
+;   (defn reset-id []
+;     (setv counter 0))) 
+
+; (print(new_id))
+; 
+; Instead:
+(setv counter 0)
+
+(defn new-id []
+  (setv counter (+ counter 1))
+  counter)
+
+(defn reset-id []
+  (setv counter 0))
+
+(print (new-id))
