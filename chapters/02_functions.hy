@@ -1,5 +1,7 @@
 ; ======= Notes in Hy language on Paul Graham's On Lisp, Chapter 2: Functions =======
 
+(print "========== 2.2 Defining Functions (p. 10.) ==========")
+
 ; Creates a function
 (defn double [x]
   (* 2 x))
@@ -41,7 +43,7 @@
 (setv double-lambda (fn [x] (* x 2)))
 (print (double-lambda 100))
 
-; === 2.2 Functional arguments ===
+(print "========== 2.3 Functional Arguments (p. 13.) ==========")
 
 (print (+ 1 2))
 
@@ -105,7 +107,7 @@
 (print(remove-if evenp []))
 
 
-; === 2.4 Functions as properties ===
+(print "========== 2.4 Functions as Properties (p. 15.) ==========")
 
 ; Hy has pattern matching the same way as Python
 (defn behave [animal] (match animal
@@ -135,7 +137,7 @@
 (behave animal2)
 
 
-; === 2.5 Scope ===
+(print "========== 2.5 Scope (p. 16.) ==========")
 
 ; In Hy, the scoping rules of variables in functions follow lexical scoping.
 ; This means that the value of a variable is determined by the environment 
@@ -154,11 +156,12 @@
 (let [y 5]
   (print(scope-test 3)))
 
-; === 2.6 Closures ===
+(print "========== 2.6 Closures (p. 17.) ==========")
 
 ; The Hy implementation of the book's example list+
 ; the anonymous function (fn [x] (+ x n)) is a closure, 
 ; as it captures the variable n from the surrounding scope of list+
+; Note that Hy uses map instead of mapcar
 (defn list+ [lst n]
   (list (map (fn [x] (+ x n)) lst))) 
 
@@ -215,3 +218,40 @@
 (print (new-id))  ; Call new-id again to see the incremented ID
 (reset-id)        ; Reset the counter
 (print (new-id))  ; Call new-id after reset to verify the counter resets
+
+; (page 18)
+; The next example returns a lambda function that adds 'n' to its argument 'x'
+(defn adder [n]
+  (fn [x] (+ x n)))
+
+; We can now create as many adder functions as we want
+(setv add2 (adder 2))
+(setv add10 (adder 10))
+
+(print (add2 5))   ; returns 7
+(print (add10 5))  ; returns 15
+
+; (page 19)
+; This function can change its internal state by passing a second argument
+; Note, that in Hy, you cannot modify a variable from an outer scope directly 
+; inside a nested function without declaring it as nonlocal
+; Also note, that optional arguments are defined in Hy as [parameter default-value]
+(defn make-adderb [n]
+  (fn [x [change None]]
+    (if change
+      (do (nonlocal n)
+          (setv n x) 
+          (print f"n changed to {x}"))
+      (+ x n))))
+
+(setv addx (make-adderb 1))
+(print (addx 3))            ; output 4
+(addx 3 True)
+(print (addx 3))            ; output 6
+(assert (= (addx 4) 7))     ; testing
+
+(print "========== 2.7 Local functions (p. 21.) ==========")
+
+; (page 21)
+; In Hy, we can apply a lambda function to a list with map
+(print(list(map (fn [x] (+ 2 x)) [2 5 7 3])))
