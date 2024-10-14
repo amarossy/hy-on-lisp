@@ -255,3 +255,31 @@
 ; (page 21)
 ; In Hy, we can apply a lambda function to a list with map
 (print(list(map (fn [x] (+ 2 x)) [2 5 7 3])))
+
+; Ok the next example became a bit more complicated in Hy
+; because it lacks the copy-tree function from Common Lisp
+;   (mapcar #’copy-tree ’((a b) (c d e)))
+; became (note that you have to install hyrule package for this to work):
+(import hyrule.collections [postwalk])
+(setv trail '((a b) (c d e)))
+(defn extract-symbols [x]
+  (cond (isinstance x hy.models.Symbol) (str x)
+        (isinstance x hy.models.Expression) (list (map extract-symbols x))
+        True x))
+(print (list (map (fn [x] (postwalk extract-symbols x)) trail)))
+
+; ... in short, here we are walking through the list with a recursive function
+; called by a lambda function mapped to the list
+
+; === Labels (p. 22)
+
+; In Hy, there is no 'labels' macro, so we have to use let to define a local function
+; TODO: This example is not working yet, has to be corrected. Because it gives hy.models.Symbol
+(defn count-instances [obj lsts]
+  (let [[instances-in (fn [lst]
+                        (cond (isinstance lst list) (instances-in (rest lst))
+                              (+ (if (= (first lst) obj) 1 0)
+                                 (instances-in (rest lst)) 0)))]]
+    (map (fn [lst] (instances-in lst)) lsts)))
+
+(count-instances 'a '((a b) (c d e)))
